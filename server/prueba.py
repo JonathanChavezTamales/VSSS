@@ -1,23 +1,38 @@
+# Reads from two sockets in different processes
 import os
 import socket
+from multiprocessing import Process, Value
 
 lastData = ""
 currentBuffer = ""
 
-def main():
-    s = socket.socket()
+def main(port_listen, ip_send, port_send):
+    print(f"main de {ip_send}")
+    socket_read = socket.socket()
+    socket_send = socket.socket()
+    shared_val = Value('i', 0)
+    p_read = Process(target=read, args=(socket_read,socket_send, shared_val,))
 
-    s.bind(('0.0.0.0', 4000 ))
-    s.listen(0) 
+    # Reader
+    socket_read.bind(('0.0.0.0', port_listen ))
+    socket_read.listen(0)
 
-    ssend = socket.socket()
-    ssend.connect(('192.168.0.103', 80))
+    # Sender
+    socket_send.connect((ip_send, port_send))
               
+    # Process startup
+    p_read.start()
+    print(f"PID1: {p_read.pid}")
+    
 
+    socket_send.close()
+    socket_read.close()
+
+def read(s,ssender, val):
+    print("reader")
     while True:
         client, addr = s.accept()
         
-
         while True:
             content = client.recv(45)
             
@@ -27,14 +42,21 @@ def main():
             else:
                 parse(content.decode("utf-8"))
                 print(lastData)
-                ssend.send(lastData.encode())
+                #val.value += 1
+                #s.send(lastData.encode())
+                #p = Process(target=send, args=(ssender, val))
+                #p.start()
+                #print(f"PID2: {p.pid}")
+                #p.join()
                 #coords = stream_to_coordinates(lastData)
                 #print(coords)
-                #print_coordinates(coords)
-                   
+                #print_coordinates(coords)    
         client.close()
 
-    ssend.close()
+def send(s, val):
+    string = f"300"
+    s.send(string.encode())
+
 
 def parse(s):
     """receives a tcp packet from the socket and formats it"""
@@ -67,4 +89,12 @@ def print_coordinates(position):
                 print(".", end="")
         print()
 
-main()
+# Main processes
+agus = Process(target=main, args=(4001,'192.168.0.18', 1018))
+jpr = Process(target=main, args=(4000, '192.168.0.101', 4100))
+
+agus.start()
+jpr.start()
+print(f"start {agus.pid} y {jpr.pid}")
+agus.join()
+agus.join()
