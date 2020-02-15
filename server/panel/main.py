@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 
 import config
 from game import State, Robot, Ball
+from object_pb2 import ObjectData
 
 
 
@@ -24,12 +25,11 @@ class App(Frame):
             ball=Ball()
             )
         self.master = master
-        self.counter = 0
         self.read_socket = read_socket
 
         # Threads for listening data and updating ui
-        #self.listener = Thread(target=self.listen_data)
-        #self.listener.start()
+        # self.listener = Thread(target=self.listen_data)
+        # self.listener.start()
 
         self.dato_0 = Label(master, text="1", fg="Black", font=("Helvetica", 30), padx=100)
         self.dato_0.grid(column=0)
@@ -72,19 +72,16 @@ class App(Frame):
         
         self.update_data()
 
-    def count(self, pqueue):
+    def listen(self):
         self.read_socket.listen(0)
         while True:
-            print("call to self")
             client, addr = self.read_socket.accept()
             while True:
-                content = client.recv(45)
+                content = client.recv(45) # Serialized protobuff data
                 if len(content) ==0:
                     break
                 else:
-                    decoded = content.decode("utf-8")
-                    print(decoded)
-                    self.game_state = game(decoded)
+                    self.game_state.update(content) 
             client.close()
         
 
@@ -97,19 +94,6 @@ class App(Frame):
             sock.send(instruction.encode("utf-8"))
             print(f"sent {instruction} to {sock.getpeername()}.")
 
-    def listen_data(self):
-        self.read_socket.listen(0)
-        while True:
-            client, addr = self.read_socket.accept()
-            while True:
-                content = client.recv(45)
-                if len(content) ==0:
-                    break
-                else:
-                    print(content.decode("utf-8"))
-                    client.close()
-                    self.after(30, self.update_data)
-
     def update_data(self):
         """
             Updates GUI in real time based on data received by the sockets.
@@ -118,13 +102,13 @@ class App(Frame):
             3.- Updates self.game_state
         """
         # TODO: (total sockets) - Benchmark  read_socket (1) vs one socket for each reading (3)
-        # TODO: Checar que no haya overflow con este metodo recursivo despues de un tiempo
         
-        self.dato_0.configure(text=f"{self.counter}")
-        self.counter += 1
+        self.dato_0.configure(text=self.game_state.home_robots[0].x)
+        self.dato_1.configure(text=self.game_state.home_robots[1].x)
+        self.dato_2.configure(text=self.game_state.home_robots[2].x)
+
         score = f"{self.game_state.home_goals} - {self.game_state.away_goals}"
         self.score.configure(text=score)
-        # Data refresh is every 30ms and listening is 50ms, so that the queue is always empty
         self.after(100, self.update_data)
 
 
@@ -175,8 +159,7 @@ if __name__ == '__main__':
     
     app=App(Tk(), write_sockets, read_socket)
 
-    pqueue = Queue()
-    p = Thread(target=app.count, args=(pqueue,))
+    p = Thread(target=app.listen)
     p.start()
     app.mainloop()
     p.join()
