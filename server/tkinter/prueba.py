@@ -2,9 +2,14 @@ from tkinter import *
 import time
 import os
 import socket
+from threading import Thread
+from multiprocessing import Process, Queue
 
 import config
 from game import State, Robot, Ball
+
+
+
 
 class App(Frame):
     def __init__(self,master, write_sockets, read_socket):
@@ -12,7 +17,6 @@ class App(Frame):
         write_sockets: list of 3 sockets already connected to the robots
         """
         Frame.__init__(self, master)
-
         # game_state contains all the real time information about the game
         self.game_state = State(
             home_robots=[Robot(rid=0, team=1, color="blue", sock=write_sockets[0]), Robot(rid=1, team=1, color="red", sock=write_sockets[1]), Robot(rid=2, team=1, color="pink", sock=write_sockets[2])],
@@ -20,7 +24,12 @@ class App(Frame):
             ball=Ball()
             )
         self.master = master
+        self.counter = 0
         self.read_socket = read_socket
+
+        # Threads for listening data and updating ui
+        #self.listener = Thread(target=self.listen_data)
+        #self.listener.start()
 
         self.dato_0 = Label(master, text="1", fg="Black", font=("Helvetica", 30), padx=100)
         self.dato_0.grid(column=0)
@@ -60,8 +69,24 @@ class App(Frame):
         self.score = Label(master, text=score, fg="green", font=("Helvetica", 40, "bold"), padx=150)
         self.score.grid(column=4)
 
+        
         self.update_data()
 
+    def count(self, pqueue):
+        self.read_socket.listen(0)
+        while True:
+            print("call to self")
+            client, addr = self.read_socket.accept()
+            while True:
+                content = client.recv(45)
+                if len(content) ==0:
+                    break
+                else:
+                    decoded = content.decode("utf-8")
+                    print(decoded)
+                    self.game_state = game(decoded)
+            client.close()
+        
 
     def sendInstruction(self, instruction, sockets):
         """
@@ -72,6 +97,18 @@ class App(Frame):
             sock.send(instruction.encode("utf-8"))
             print(f"sent {instruction} to {sock.getpeername()}.")
 
+    def listen_data(self):
+        self.read_socket.listen(0)
+        while True:
+            client, addr = self.read_socket.accept()
+            while True:
+                content = client.recv(45)
+                if len(content) ==0:
+                    break
+                else:
+                    print(content.decode("utf-8"))
+                    client.close()
+                    self.after(30, self.update_data)
 
     def update_data(self):
         """
@@ -80,8 +117,15 @@ class App(Frame):
             2.- Parses the data
             3.- Updates self.game_state
         """
+        # TODO: (total sockets) - Benchmark  read_socket (1) vs one socket for each reading (3)
+        # TODO: Checar que no haya overflow con este metodo recursivo despues de un tiempo
         
-        self.after(50, self.update_data)
+        self.dato_0.configure(text=f"{self.counter}")
+        self.counter += 1
+        score = f"{self.game_state.home_goals} - {self.game_state.away_goals}"
+        self.score.configure(text=score)
+        # Data refresh is every 30ms and listening is 50ms, so that the queue is always empty
+        self.after(100, self.update_data)
 
 
 if __name__ == '__main__':
@@ -114,10 +158,12 @@ if __name__ == '__main__':
                 exit()
             print(f"IP - {i}: {config.sockets['ROBOTS'][i][0]}")
             print(f"PORT - {i}: {config.sockets['ROBOTS'][i][1]}")
+            time.sleep(.3)
     # Manual data entry
     else:
         port = int(input("PORT to listen: "))
         read_socket.bind(('0.0.0.0',  port))
+        #read_socket.listen(0)
         for i in range(3):
             ip = input(f"IP - {i}: ")
             port = int(input(f"PORT - {i}: "))
@@ -125,6 +171,12 @@ if __name__ == '__main__':
 
     print(f"## Server running on {local_ip}:{port} ##")
 
-    # Run of the main loop after configuration
+    # One process for reading from socket, another for ui and writing
+    
     app=App(Tk(), write_sockets, read_socket)
-    mainloop()
+
+    pqueue = Queue()
+    p = Thread(target=app.count, args=(pqueue,))
+    p.start()
+    app.mainloop()
+    p.join()

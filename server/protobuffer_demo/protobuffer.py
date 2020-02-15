@@ -12,3 +12,9 @@ serialized = message.SerializeToString()
 print(sys.getsizeof(serialized))
 non_serialized = "1,40,345,11294"
 print(sys.getsizeof(non_serialized))
+
+
+print("parsing")
+parsed = robot_pb2.RobotData()
+parsed.ParseFromString(serialized)
+print(parsed)
