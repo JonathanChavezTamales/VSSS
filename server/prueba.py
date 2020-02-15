@@ -1,17 +1,19 @@
 # Reads from two sockets in different processes
 import os
 import socket
+import time
 from multiprocessing import Process, Value
 
 lastData = ""
 currentBuffer = ""
 
-def main(port_listen, ip_send, port_send):
+def main(num, port_listen, ip_send, port_send):
     print(f"main de {ip_send}")
     socket_read = socket.socket()
     socket_send = socket.socket()
     shared_val = Value('i', 0)
-    p_read = Process(target=read, args=(socket_read,socket_send, shared_val,))
+    p_read = Process(target=read, args=(num, socket_read, shared_val,))
+    p_write = Process(target=write, args=(socket_send, shared_val, ))
 
     # Reader
     socket_read.bind(('0.0.0.0', port_listen ))
@@ -22,13 +24,23 @@ def main(port_listen, ip_send, port_send):
               
     # Process startup
     p_read.start()
+    p_write.start()
+
     print(f"PID1: {p_read.pid}")
+    print(f"PID2: {p_write.pid}")
     
 
     socket_send.close()
     socket_read.close()
 
-def read(s,ssender, val):
+
+def write(s, val):
+    time.sleep(.1)
+    print(val.value)
+    s.send(b"300")
+
+
+def read(num, s, val):
     print("reader")
     while True:
         client, addr = s.accept()
@@ -41,21 +53,16 @@ def read(s,ssender, val):
 
             else:
                 parse(content.decode("utf-8"))
+                print(f"Data {num}:", lastData)
                 print(lastData)
-                #val.value += 1
-                #s.send(lastData.encode())
-                #p = Process(target=send, args=(ssender, val))
-                #p.start()
-                #print(f"PID2: {p.pid}")
-                #p.join()
+                newval = int(lastData)
+                val.value =  4#int(lastData)
+                #s.send(lastData.encode()) 
                 #coords = stream_to_coordinates(lastData)
                 #print(coords)
                 #print_coordinates(coords)    
         client.close()
 
-def send(s, val):
-    string = f"300"
-    s.send(string.encode())
 
 
 def parse(s):
@@ -90,11 +97,11 @@ def print_coordinates(position):
         print()
 
 # Main processes
-agus = Process(target=main, args=(4001,'192.168.0.18', 1018))
-jpr = Process(target=main, args=(4000, '192.168.0.101', 4100))
+agus = Process(target=main, args=("ags", 4001,'192.168.0.18', 1018))
+jpr = Process(target=main, args=("jpr", 4000, '192.168.0.101', 4100))
 
-agus.start()
+#agus.start()
 jpr.start()
 print(f"start {agus.pid} y {jpr.pid}")
-agus.join()
-agus.join()
+#agus.join()
+jpr.join()
