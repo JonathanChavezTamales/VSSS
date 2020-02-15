@@ -107,8 +107,9 @@ void Task2code( void * pvParameters ){
 
          String line = client.readStringUntil('\n');
          //Serial.print(line);
-         int caca = line.toInt();
-         analogWrite(led, caca);
+         int num = line.toInt();
+         num = map(num, 0, 4095, 0, 255);
+         analogWrite(led, num);
         } 
     }
     delay(40);
