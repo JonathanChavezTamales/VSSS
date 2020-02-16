@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package object;
+
+message ObjectData{
+    required int32 kind = 1; // 1 - Robot, 2 - Ball
+	required int32 id = 2;
+	optional int32 x = 3;
+    optional int32 y = 4;
+	optional int32 yaw = 5;
+}
