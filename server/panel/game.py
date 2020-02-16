@@ -41,12 +41,19 @@ class State:
         deserialized = ObjectData()
         deserialized.ParseFromString(serialized)
         print(deserialized)
-        
         if deserialized.kind == 1:
             # Robot
-            self.home_robots[deserialized.id].x = deserialized.x
-            self.home_robots[deserialized.id].y = deserialized.y
-            self.home_robots[deserialized.id].yaw = deserialized.yaw
+            if deserialized.team == 1:
+                self.home_robots[deserialized.id].x = deserialized.x
+                self.home_robots[deserialized.id].y = deserialized.y
+                self.home_robots[deserialized.id].yaw = deserialized.yaw
+                self.home_robots[deserialized.id].team = deserialized.team
+            
+            elif deserialized.team == 2:
+                self.away_robots[deserialized.id].x = deserialized.x
+                self.away_robots[deserialized.id].y = deserialized.y
+                self.away_robots[deserialized.id].yaw = deserialized.yaw
+                self.away_robots[deserialized.id].team = deserialized.team
 
         elif deserialized.kind == 2:
             # Ball
