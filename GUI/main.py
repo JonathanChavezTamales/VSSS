@@ -29,7 +29,7 @@ class Main(tk.Tk):
         style.configure("BackgroundPURPLE.TFrame", background="purple")
         style.configure("BackgroundWHITE.TFrame", background="white")
         style.configure("BackgroundORANGE.TFrame", background="orange")
-        style.configure("BackgroundPINK.TFrame", background="black")
+        style.configure("BackgroundPINK.TFrame", background="pink")
 
 
 
@@ -61,7 +61,6 @@ class Main(tk.Tk):
             background=[("active", COLOR_PRIMARY), ("disabled", COLOR_LIGHT_TEXT)]
         )
 
-
         SCREEN_WIDTH = self.winfo_screenwidth()
         SCREEN_HEIGHT = self.winfo_screenheight()
 
@@ -87,8 +86,6 @@ class Main(tk.Tk):
         self.frames[Dashboard] = dashboard_frame
         
         self.show_frame(Dashboard)
-
-      
 
         self.title('ALPHA SOCCER FC v1.0')
         self.geometry(f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}")

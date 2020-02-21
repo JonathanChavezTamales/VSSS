@@ -3,13 +3,14 @@ from tkinter import ttk
 from team import Team
 from ball import Ball
 from strategy import Strategy
+from PIL import Image, ImageTk
 
 
 class Dashboard(ttk.Frame):
     def __init__(self, parent, controller, show_settings, height, width):
         super().__init__(parent)
 
-        self["style"] = "BackgroundBLUE.TFrame"
+        self["style"] = "Background.TFrame"
         self["height"] = height
         self["width"] = width
 
@@ -18,34 +19,39 @@ class Dashboard(ttk.Frame):
         self.rowconfigure(0, weight=1)
 
         equipo1 = Team(self, height=height, width=width, isEnemyTeam=True)
-        equipo1.grid(row=0, column=0, sticky="NSEW", columnspan=3)
+        equipo1.grid(row=0, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
 
         equipo2 = Team(self, height=height, width=width, isEnemyTeam=False)
-        equipo2.grid(row=1, column=0, sticky="NSEW", columnspan=3)
+        equipo2.grid(row=1, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
 
-        ball = Ball(self, height=height, width=width)
+        control_panel = ttk.Frame(self, height=height/3, width=width, style = "BackgroundORANGE.TFrame")
+        control_panel.grid(row=2, column=0, sticky="NSEW", columnspan=3)
+
+        BACKGROUND_PATH = "Assets/hola2.jpg"
+        background_image = ImageTk.PhotoImage(Image.open(BACKGROUND_PATH).resize((int(width), int(height/3)), Image.ANTIALIAS))
+        background_label = tk.Label(control_panel, image=background_image)
+        background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        background_label.image = background_image
+
+        ball = Ball(self, height=height/3, width=width/3)
         ball.grid(row=2, column=0, sticky="NSEW")
 
-        strategy = Strategy(self, height=height, width=width)
+        strategy = Strategy(self, height=height/3, width=2*width/3)
         strategy.grid(row=2, column=1, sticky="NSEW")
 
-        ajustes = ttk.Frame(self, height=height/3, width=width/6, style="BackgroundRED.TFrame")
-        ajustes.grid(row=2, column=2, sticky="NSEW")
+        # ajustes = ttk.Frame(self, height=height/3, width=width/6, style="BackgroundRED.TFrame")
+        # ajustes.grid(row=2, column=2, sticky="NSEW")
 
+        # settings_button = ttk.Button(
+        #     ajustes,
+        #     style = "Button.TButton",
+        #     text="Settings",
+        #     command=show_settings,
+        #     cursor="hand2"
+        # )
+        # settings_button.grid(row=0, column=0, sticky="E", padx=10, pady=(10, 0))
 
-        settings_button = ttk.Button(
-            ajustes,
-            style = "Button.TButton",
-            text="Settings",
-            command=show_settings,
-            cursor="hand2"
-        )
-        settings_button.grid(row=0, column=0, sticky="E", padx=10, pady=(10, 0))
-
-        # dashboard_frame = ttk.Frame(self, height="170", style="Dashboard.TFrame")
-        # dashboard_frame.grid(row=1, column=0, columnspan=2, pady=(10, 0), sticky="NSEW")
-
-   
+      
 
 
   
