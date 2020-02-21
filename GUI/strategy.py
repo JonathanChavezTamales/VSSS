@@ -13,7 +13,7 @@ class Strategy(ttk.Frame):
         self["width"] =  self.width
         self["style"] = "BackgroundPURPLE.TFrame"
 
-        BACKGROUND_PATH = "Assets/f3.jpg"
+        BACKGROUND_PATH = "Assets/panel_background.jpg"
         background_image = ImageTk.PhotoImage(Image.open(BACKGROUND_PATH).resize((int(self.width), int(self.height)), Image.ANTIALIAS))
         background_label = tk.Label(self, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)

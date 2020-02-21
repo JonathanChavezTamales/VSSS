@@ -11,7 +11,6 @@ class Team(ttk.Frame):
         self.height = int(height/3)
         self.width = int(width)
 
-        #self["padding"] = (20, 20, 20, 20)
         self["height"] = self.height
         self["width"] = self.width
 
@@ -33,12 +32,12 @@ class Team(ttk.Frame):
         )
         self.color_picker_btn.grid(row=0, column=0, sticky="NS", pady=(15, 15))
 
-        robot1 = Robot(self, height=height, width=width)
+        robot1 = Robot(self, height=height, width=width, player_mode="portero")
         robot1.grid(row=0, column=1, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        robot2 = Robot(self, height=height, width=width)
+        robot2 = Robot(self, height=height, width=width, player_mode="jugador")
         robot2.grid(row=0, column=2, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        robot3 = Robot(self, height=height, width=width)
+        robot3 = Robot(self, height=height, width=width, player_mode="jugador")
         robot3.grid(row=0, column=3, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
     

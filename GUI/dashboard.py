@@ -27,12 +27,6 @@ class Dashboard(ttk.Frame):
         control_panel = ttk.Frame(self, height=height/3, width=width, style = "BackgroundORANGE.TFrame")
         control_panel.grid(row=2, column=0, sticky="NSEW", columnspan=3)
 
-        BACKGROUND_PATH = "Assets/hola2.jpg"
-        background_image = ImageTk.PhotoImage(Image.open(BACKGROUND_PATH).resize((int(width), int(height/3)), Image.ANTIALIAS))
-        background_label = tk.Label(control_panel, image=background_image)
-        background_label.place(x=0, y=0, relwidth=1, relheight=1)
-        background_label.image = background_image
-
         ball = Ball(self, height=height/3, width=width/3)
         ball.grid(row=2, column=0, sticky="NSEW")
 
