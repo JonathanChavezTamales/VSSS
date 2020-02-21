@@ -29,7 +29,7 @@ class Dashboard(ttk.Frame):
         strategy = Strategy(self, height=height, width=width)
         strategy.grid(row=2, column=1, sticky="NSEW")
 
-        ajustes = ttk.Frame(self, padding=(20, 20, 20, 20), height=height/3, width=width/6, style="BackgroundRED.TFrame")
+        ajustes = ttk.Frame(self, height=height/3, width=width/6, style="BackgroundRED.TFrame")
         ajustes.grid(row=2, column=2, sticky="NSEW")
 
 

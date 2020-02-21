@@ -13,7 +13,6 @@ class Settings(ttk.Frame):
 
         settings_container = ttk.Frame(
             self,
-            padding="30 15 30 15",
             style="BackgroundRED.TFrame"
         )
 

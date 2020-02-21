@@ -5,7 +5,7 @@ from settings import Settings
 from dashboard import Dashboard
 
 
-COLOR_PRIMARY = "#2e3f4f"
+COLOR_PRIMARY = "black"
 COLOR_SECONDARY = "#293846"
 COLOR_LIGHT_BACKGROUND = "#fff"
 COLOR_LIGHT_TEXT = "#eee"
@@ -29,6 +29,7 @@ class Main(tk.Tk):
         style.configure("BackgroundPURPLE.TFrame", background="purple")
         style.configure("BackgroundWHITE.TFrame", background="white")
         style.configure("BackgroundORANGE.TFrame", background="orange")
+        style.configure("BackgroundPINK.TFrame", background="black")
 
 
 
