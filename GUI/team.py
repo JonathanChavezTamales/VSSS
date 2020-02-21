@@ -14,6 +14,9 @@ class Team(ttk.Frame):
         self["height"] = self.height
         self["width"] = self.width
 
+        self.parent = parent
+
+
         # self.columnconfigure(1, weight=1)
         # self.rowconfigure(0, weight=1)
     
@@ -31,13 +34,16 @@ class Team(ttk.Frame):
             width=self.width/18
         )
         self.color_picker_btn.grid(row=0, column=0, sticky="NS", pady=(15, 15))
+        #self.color_picker_btn.config(bg="red")
 
-        robot1 = Robot(self, height=height, width=width, player_mode="portero")
-        robot1.grid(row=0, column=1, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
+        self.robot1 = Robot(self, height=height, width=width, player_mode="portero")
+        self.robot1.grid(row=0, column=1, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        robot2 = Robot(self, height=height, width=width, player_mode="jugador")
-        robot2.grid(row=0, column=2, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
+        self.robot2 = Robot(self, height=height, width=width, player_mode="jugador")
+        self.robot2.grid(row=0, column=2, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        robot3 = Robot(self, height=height, width=width, player_mode="jugador")
-        robot3.grid(row=0, column=3, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
+        self.robot3 = Robot(self, height=height, width=width, player_mode="jugador")
+        self.robot3.grid(row=0, column=3, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
+
+    
     
