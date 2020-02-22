@@ -1,6 +1,3 @@
-## VSSS
+# VSSS
 
 Repositorio del proyecto
-
-
-
