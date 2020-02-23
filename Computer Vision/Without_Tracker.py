@@ -14,10 +14,10 @@ def display(img, cmap = None):
     fig = plt.figure(figsize = (12,10))
     ax = fig.add_subplot(111)
     ax.imshow(img, cmap)
-    
+
 #-----------------------------------------------------------------------------------------------------------------
 
-def find_center(img, color):
+def find_center(img, color, color_code):
     centers = []
     kernel = np.ones(shape = (4,4), dtype = np.uint8)
     rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -44,7 +44,7 @@ def find_center(img, color):
     elif color == "blue":
         lower = np.array(boundaries[1][0], dtype = "uint8")
         upper = np.array(boundaries[1][1], dtype = "uint8")
-        
+     
     mask = cv2.inRange(hsv_img, lower, upper)
     result = cv2.bitwise_and(rgb_img, rgb_img, mask = mask)
     gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
@@ -70,7 +70,7 @@ def find_center(img, color):
             cY = (top[1] + bottom[1]) // 2
 
             centers.append((cX, cY))
-            
+          
         return centers
     return None
 

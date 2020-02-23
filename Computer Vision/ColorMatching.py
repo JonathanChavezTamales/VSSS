@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
 from ExitWindow import *
+from RangeSelector import *
 #import matplotlib.pyplot
 
 def to255(num, val):
     x = (num*255)//val
     return x
-
+pip
 def check_boundaries(boundaries):
     for i, color in enumerate(boundaries):
         for j, channels in enumerate(color):
