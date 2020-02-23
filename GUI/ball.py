@@ -28,9 +28,9 @@ class Ball(ttk.Frame):
         background_label.image = background_image
 
 
-        ICON_PATH = "Assets/robot_frame.jpg"
-        icon_image = ImageTk.PhotoImage(Image.open(ICON_PATH).resize((int(.2*self.width), int(.3*self.height)), Image.ANTIALIAS))
-        self.label_icon = tk.Label(self, image=icon_image)
-        self.label_icon.grid(column=0, row=0, sticky="NSEW", padx=(30,10), pady=(85,60), rowspan=3)
-        self.label_icon.image = background_image
+        # ICON_PATH = "Assets/robot_frame.jpg"
+        # icon_image = ImageTk.PhotoImage(Image.open(ICON_PATH).resize((int(.2*self.width), int(.3*self.height)), Image.ANTIALIAS))
+        # self.label_icon = tk.Label(self, image=icon_image)
+        # self.label_icon.grid(column=0, row=0, sticky="NSEW", padx=(30,10), pady=(85,60), rowspan=3)
+        # self.label_icon.image = background_image
     

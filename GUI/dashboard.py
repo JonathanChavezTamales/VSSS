@@ -20,10 +20,10 @@ class Dashboard(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
-        self.equipo1 = Team(self, height=height, width=width, isEnemyTeam=True)
+        self.equipo1 = Team(self, height=height, width=width, is_enemy_team=False, color="orange")
         self.equipo1.grid(row=0, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
 
-        self.equipo2 = Team(self, height=height, width=width, isEnemyTeam=False)
+        self.equipo2 = Team(self, height=height, width=width, is_enemy_team=True, color="blue")
         self.equipo2.grid(row=1, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
 
         self.control_panel = ttk.Frame(self, height=height/3, width=width, style = "BackgroundORANGE.TFrame")
