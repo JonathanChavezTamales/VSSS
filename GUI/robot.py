@@ -70,14 +70,8 @@ class Robot(ttk.Frame):
                 )
                 label_giroscope_angle.grid(column=1, row=2, sticky="EW", padx=(30,10), pady=(10,60))
 
-            self.color_picker_btn = ttk.Button(
-                self,
-                text="",
-                #command=,
-                cursor="hand2",
-
-            )
-            self.color_picker_btn.grid(row=0, column=3, sticky="NS", pady=(80, 80), padx=(15,15), rowspan=3)
+            self.color_bar = tk.Label(self, bg=self.color)
+            self.color_bar.grid(row=0, column=3, sticky="NS", pady=(80, 80), padx=(15,15), rowspan=3)
 
         
  
