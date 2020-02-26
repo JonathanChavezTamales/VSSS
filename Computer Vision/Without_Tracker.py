@@ -99,7 +99,7 @@ def draw_line(img, c1, c2):
 
 #-------------------------------------------------------------------------------------------------------------------
 
-def find_robot_center(img, color1, color2):
+def find_robot_center(img, color_code, color1, color2):
     centers1 = find_center(img, color1)
     centers2 = find_center(img, color2)
     
@@ -107,8 +107,17 @@ def find_robot_center(img, color1, color2):
         c1 = centers1[0]
         c2 = centers2[min_distance(centers1, centers2)]
         robot_center = (c1[0]+c2[0]) // 2, (c1[1]+c2[1]) // 2
-        return np.asarray(c1, c2, robot_center, dtype = np.float32)
+        return c1, c2, robot_center
     return None
+
+#-------------------------------------------------------------------------------------------------------------------
+
+def find_robots(img, color_code, team_color, robot1_color, robot2_color, robot3_color, draw):
+    robot1_center = find_robot_center(img, robot1_color, team_color)
+    robot2_center = find_robot_center(img, robot2_color, team_color)
+    robot3_center = find_robot_center(img, robot3_color, team_color)
+    
+
 
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -183,10 +192,6 @@ while lastPts is None:
 while True:
 
     ret, frame =  cap.read()
-    
-    #frame = frame[:, 190:1050, :]
-
-    #frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
     if ret:
         
