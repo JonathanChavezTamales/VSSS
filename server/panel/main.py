@@ -81,7 +81,8 @@ class App(Frame):
                 if len(content) ==0:
                     break
                 else:
-                    self.game_state.update(content) 
+                    self.game_state.update(content)
+                    print("new message")
             client.close()
         
 
@@ -109,13 +110,12 @@ class App(Frame):
 
         score = f"{self.game_state.home_goals} - {self.game_state.away_goals}"
         self.score.configure(text=score)
-        self.after(100, self.update_data)
+        self.after(50, self.update_data)
 
 
 if __name__ == '__main__':
 
     # Server configuration
-
     read_socket = socket.socket()
     # write_sockets is the list of sockets used to send data, they are passed as parameters to the gui
     write_sockets = [socket.socket(), socket.socket(), socket.socket()]
@@ -125,6 +125,10 @@ if __name__ == '__main__':
         if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), 
         s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, 
         socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
+
+    port = int(input("PORT to listen: "))
+    print(f"## Server will run on {local_ip}:{port} ##")
+
     
     # Ask if you want to use data from config.py instead of writing it everytime you test
     opc = input("Do you want to load configurations from 'config.py'? (y/n): ")
@@ -136,7 +140,8 @@ if __name__ == '__main__':
         read_socket.bind(('0.0.0.0', port))
         for i in range(3):
             try:
-                write_sockets[i].connect((config.sockets['ROBOTS'][i][0], config.sockets['ROBOTS'][i][1]))
+                pass
+                #write_sockets[i].connect((config.sockets['ROBOTS'][i][0], config.sockets['ROBOTS'][i][1]))
             except:
                 print("Error: Robots are not connected yet.")
                 exit()
@@ -145,15 +150,12 @@ if __name__ == '__main__':
             time.sleep(.3)
     # Manual data entry
     else:
-        port = int(input("PORT to listen: "))
         read_socket.bind(('0.0.0.0',  port))
         #read_socket.listen(0)
         for i in range(3):
             ip = input(f"IP - {i}: ")
             port = int(input(f"PORT - {i}: "))
             write_sockets[i].connect((ip,port))
-
-    print(f"## Server running on {local_ip}:{port} ##")
 
     # One process for reading from socket, another for ui and writing
     

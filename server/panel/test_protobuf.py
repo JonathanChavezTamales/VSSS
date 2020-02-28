@@ -4,7 +4,7 @@ import time
 from random import randint
 
 s = socket.socket()
-s.connect(('192.168.0.100', 4000))
+s.connect(('10.43.63.47', 4000))
 
 while True:
     print("sending")
