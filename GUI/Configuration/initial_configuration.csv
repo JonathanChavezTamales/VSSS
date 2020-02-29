@@ -1,0 +1,7 @@
+alias, ip_address, mac_address, server_port, client_port, team_color, robot_color, team_number, player_mode
+El Agus, 192.168.0.18, 00:A0:C9:14:C8:29, 1005, 1018, orange, red, team1, goalkeeper
+El Rivera, 192.168.0.6, 00:A0:C9:14:C8:29, 1005, 1006, orange, blue, team1, player
+El Jona, 192.168.0.101, 00:A0:C9:14:C8:29, 1005, 4100, orange, green, team1, player
+Enemy 1, 0, 0, 0, 0, blue, yellow, team2, goalkeeper
+Enemy 2, 0, 0, 0, 0, blue, pink, team2, player 
+Enemy 3, 0, 0, 0, 0, blue, cyan, team2, player 

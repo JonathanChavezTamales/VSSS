@@ -32,7 +32,6 @@ class Main(tk.Tk):
         style.configure("BackgroundPINK.TFrame", background="pink")
 
 
-
         style.configure("Background.TFrame", background=COLOR_PRIMARY)
         style.configure(
             "Dashboard.TLabel",
@@ -53,6 +52,13 @@ class Main(tk.Tk):
             "Button.TButton",
             background=[COLOR_SECONDARY],
             foreground=COLOR_LIGHT_TEXT,
+            font=("TkDefaultFont", 11)
+        )
+
+        style.configure(
+            "info_button.TButton",
+            background="black",
+            foreground="white",
             font=("TkDefaultFont", 11)
         )
 

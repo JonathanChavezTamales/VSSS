@@ -3,9 +3,8 @@ from tkinter import ttk
 from robot import Robot
 from PIL import ImageTk,Image
 
-
 class Team(ttk.Frame):
-    def __init__(self, parent, height, width, is_enemy_team, color):
+    def __init__(self, parent, height, width, initial_data):
         super().__init__(parent)
 
         self.height = int(height/3)
@@ -16,7 +15,7 @@ class Team(ttk.Frame):
 
         self.parent = parent
 
-        self.color = color
+        self.color = initial_data[0]["team_color"]
 
         print(self.color)
 
@@ -24,7 +23,7 @@ class Team(ttk.Frame):
         # self.columnconfigure(1, weight=1)
         # self.rowconfigure(0, weight=1)
     
-        BACKGROUND_PATH = "Assets/team1_background.jpg" if not is_enemy_team else "Assets/team2_background.jpg"
+        BACKGROUND_PATH = "Assets/team1_background.jpg" if initial_data[0]["team_number"] == "team1" else "Assets/team2_background.jpg"
         background_image = ImageTk.PhotoImage(Image.open(BACKGROUND_PATH).resize((self.width, self.height), Image.ANTIALIAS))
         background_label = tk.Label(self, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -42,13 +41,13 @@ class Team(ttk.Frame):
         self.color_bar = tk.Label(self, bg=self.color)
         self.color_bar.grid(row=0, column=0, sticky="NS", pady=(15,15))
 
-        self.robot1 = Robot(self, height=height, width=width, player_mode="goalkeeper", is_enemy=is_enemy_team, color="green")
+        self.robot1 = Robot(self, height=height, width=width, initial_data=initial_data[0])
         self.robot1.grid(row=0, column=1, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        self.robot2 = Robot(self, height=height, width=width, player_mode="jugador", is_enemy=is_enemy_team, color="pink")
+        self.robot2 = Robot(self, height=height, width=width, initial_data=initial_data[1])
         self.robot2.grid(row=0, column=2, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
-        self.robot3 = Robot(self, height=height, width=width, player_mode="jugador", is_enemy=is_enemy_team, color="yellow")
+        self.robot3 = Robot(self, height=height, width=width, initial_data=initial_data[2])
         self.robot3.grid(row=0, column=3, padx=(20, 20), pady=(15, 15), sticky="NSEW")#, sticky="NSEW", padx=(10, 0), pady=(10, 0))
 
     

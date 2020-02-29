@@ -20,11 +20,27 @@ class Dashboard(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
-        self.equipo1 = Team(self, height=height, width=width, is_enemy_team=False, color="orange")
-        self.equipo1.grid(row=0, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
+        INITIAL_CONFIGURATION_FILE_PATH = "Configuration/initial_configuration.csv"
 
-        self.equipo2 = Team(self, height=height, width=width, is_enemy_team=True, color="blue")
-        self.equipo2.grid(row=1, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
+        initial_configuration_file = open(INITIAL_CONFIGURATION_FILE_PATH, "r")
+
+        teams = {"team1":[], "team2":[]}
+
+        lines = initial_configuration_file.readlines()
+        DATA_HEADERS = lines[0].split(",")
+        for line in lines[1:]:
+            data = line.split(",")
+            robot_data = {DATA_HEADERS[x].replace(" ", "").replace("\n", "") : data[x].replace(" ", "").replace("\n", "") for x in range(len(data))}
+            print(robot_data.keys())
+            teams[robot_data["team_number"]].append(robot_data)
+
+        initial_configuration_file.close()
+             
+        self.team1 = Team(self, height=height, width=width, initial_data=teams["team1"])
+        self.team1.grid(row=0, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
+
+        self.team2 = Team(self, height=height, width=width, initial_data=teams["team2"])
+        self.team2.grid(row=1, column=0, sticky="NSEW", columnspan=3, pady=(0, 15))
 
         self.control_panel = ttk.Frame(self, height=height/3, width=width, style = "BackgroundORANGE.TFrame")
         self.control_panel.grid(row=2, column=0, sticky="NSEW", columnspan=3)
@@ -51,6 +67,7 @@ class Dashboard(ttk.Frame):
 
 
   
+
 
       
 
