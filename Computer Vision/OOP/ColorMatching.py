@@ -1,9 +1,8 @@
 import cv2
 from threading import Thread
+from RangeSelector import *
 import numpy as np
 from ExitWindow import *
-from RangeSelector import *
-#import matplotlib.pyplot
 
 def to255(num, val):
     x = (num*255)//val
@@ -18,7 +17,8 @@ def check_boundaries(boundaries):
                 elif boundaries[i][j][k] > 255:
                      boundaries[i][j][k]=255
                         
-def color_matching(cap):
+def color_matching(cap, values):
+
     hsv_boundaries = [[[0,0,0],[255,255,255]],  #AMARILLO
                      [[0,0,0],[255,255,255]],   #AZUL
                      [[0,0,0],[255,255,255]],   #NARANJA
@@ -50,12 +50,12 @@ def color_matching(cap):
 
         if event == cv2.EVENT_LBUTTONDOWN:
             if code == 'h':
-                hsv_boundaries[color][0][0] = hsv_img[y,x,0] - 10
-                hsv_boundaries[color][1][0] = hsv_img[y,x,0] + 10
-                hsv_boundaries[color][0][1] = hsv_img[y,x,1] - 45
-                hsv_boundaries[color][1][1] = hsv_img[y,x,1] + 45
-                hsv_boundaries[color][0][2] = hsv_img[y,x,2] - 45
-                hsv_boundaries[color][1][2] = hsv_img[y,x,2] + 45
+                hsv_boundaries[color][0][0] = hsv_img[y,x,0] - values[0] 
+                hsv_boundaries[color][1][0] = hsv_img[y,x,0] + values[0]
+                hsv_boundaries[color][0][1] = hsv_img[y,x,1] - values[1]
+                hsv_boundaries[color][1][1] = hsv_img[y,x,1] + values[1]
+                hsv_boundaries[color][0][2] = hsv_img[y,x,2] - values[2]
+                hsv_boundaries[color][1][2] = hsv_img[y,x,2] + values[2]
 
             elif code == 'r':
                 rgb_boundaries[color][0][0] = rgb_img[y,x,0] - 30
@@ -82,6 +82,8 @@ def color_matching(cap):
     cv2.setMouseCallback("Colors", position)
 
     while True:
+
+        print(values)
 
         ret, frame = cap.read()
         hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -322,5 +324,17 @@ def color_matching(cap):
     cv2.destroyAllWindows()
     return hsv_boundaries, rgb_boundaries, lab_boundaries
 
-if __name__ == '__main__':
-   color_matching()
+""" if __name__ == '__main__':
+   color_matching() """
+
+cap = cv2.VideoCapture(0)
+
+values = [0,0,0]
+
+thread1 = Thread(target=color_matching, args=(cap, values,))
+thread2 = Thread(target=range_selector, args=('h', values,))
+thread1.start()
+thread2.start()
+thread1.join()
+thread2.join()
+print(values)

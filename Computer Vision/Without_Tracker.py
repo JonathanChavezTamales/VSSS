@@ -3,6 +3,9 @@ import cv2
 import matplotlib.pyplot as plt
 from ColorMatching import *
 import numpy as np
+import socket
+import threading
+from object_pb2 import ObjectData
 
 def to255(num, val):
     x = (num*255)//val
@@ -17,36 +20,46 @@ def display(img, cmap = None):
 
 #-----------------------------------------------------------------------------------------------------------------
 
-def find_center(img, color, color_code):
+def find_center(img, color_code, color):
+    global boundaries
     centers = []
-    kernel = np.ones(shape = (4,4), dtype = np.uint8)
-    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    kernel = np.ones(shape = (3,3), dtype = np.uint8)
+    if color_code == 'h':
+        selected_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        selected_boundaries = boundaries[0]
+
+    elif color_code == 'r':
+        selected_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        selected_boundaries = boundaries[1]
+
+    elif color_code == 'l':
+        selected_img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        selected_boundaries = boundaries[2]
     
     if color == "orange":
-        lower = np.array(boundaries[2][0], dtype = "uint8")
-        upper = np.array(boundaries[2][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[2][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[2][1], dtype = "uint8")
     elif color == "red":
-        lower = np.array(boundaries[3][0], dtype = "uint8")
-        upper = np.array(boundaries[3][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[3][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[3][1], dtype = "uint8")
     elif color == "green":
-        lower = np.array(boundaries[4][0], dtype = "uint8")
-        upper = np.array(boundaries[4][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[4][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[4][1], dtype = "uint8")
     elif color == "pink":
-        lower = np.array(boundaries[6][0], dtype = "uint8")
-        upper = np.array(boundaries[6][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[6][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[6][1], dtype = "uint8")
     elif color == "purple":
-        lower = np.array(boundaries[5][0], dtype = "uint8")
-        upper = np.array(boundaries[5][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[5][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[5][1], dtype = "uint8")
     elif color == "yellow":
-        lower = np.array(boundaries[0][0], dtype = "uint8")
-        upper = np.array(boundaries[0][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[0][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[0][1], dtype = "uint8")
     elif color == "blue":
-        lower = np.array(boundaries[1][0], dtype = "uint8")
-        upper = np.array(boundaries[1][1], dtype = "uint8")
+        lower = np.array(selected_boundaries[1][0], dtype = "uint8")
+        upper = np.array(selected_boundaries[1][1], dtype = "uint8")
      
-    mask = cv2.inRange(hsv_img, lower, upper)
-    result = cv2.bitwise_and(rgb_img, rgb_img, mask = mask)
+    mask = cv2.inRange(selected_img, lower, upper)
+    result = cv2.bitwise_and(img, img, mask = mask)
     gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
     ret, thresh = cv2.threshold(gray, 25, 255, cv2.THRESH_BINARY)
@@ -54,7 +67,7 @@ def find_center(img, color, color_code):
     eroded = cv2.erode(thresh, kernel, iterations = 1)
     dilated = cv2.dilate(eroded, kernel, iterations = 2)
 
-    image, contours, hierarchy = cv2.findContours(dilated, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
     if len(contours) != 0:
         for i in contours:
@@ -100,24 +113,43 @@ def draw_line(img, c1, c2):
 #-------------------------------------------------------------------------------------------------------------------
 
 def find_robot_center(img, color_code, color1, color2):
-    centers1 = find_center(img, color1)
-    centers2 = find_center(img, color2)
-    
-    if centers1 != None and centers2 != None:
+    centers1 = find_center(img, color_code, color1)
+    centers2 = find_center(img, color_code, color2)
+
+    if not(centers1 is None) and not(centers2 is None):
         c1 = centers1[0]
         c2 = centers2[min_distance(centers1, centers2)]
-        robot_center = (c1[0]+c2[0]) // 2, (c1[1]+c2[1]) // 2
+        robot_center = (c1[0]+c2[0]) // 2, (c1[1]+c2[1]) // 2       
         return c1, c2, robot_center
     return None
 
 #-------------------------------------------------------------------------------------------------------------------
 
-def find_robots(img, color_code, team_color, robot1_color, robot2_color, robot3_color, draw):
-    robot1_center = find_robot_center(img, robot1_color, team_color)
-    robot2_center = find_robot_center(img, robot2_color, team_color)
-    robot3_center = find_robot_center(img, robot3_color, team_color)
-    
+def find_robots(img, color_code, team_color, robot1_color, robot2_color, robot3_color, draw=False):
+    try:
+        c1_1, c1_2, robot1_center = find_robot_center(img, color_code, robot1_color, team_color)
+        c2_1, c2_2, robot2_center = find_robot_center(img, color_code, robot2_color, team_color)
+        c3_1, c3_2, robot3_center = find_robot_center(img, color_code, robot3_color, team_color)
+    except TypeError:
+        return None
 
+    robot1_angle = int(calc_angle(c1_2[0], c1_2[1], c1_1[0], c1_1[1]))
+    robot2_angle = int(calc_angle(c2_2[0], c2_2[1], c2_1[0], c2_1[1]))
+    robot3_angle = int(calc_angle(c3_2[0], c3_2[1], c3_1[0], c3_1[1]))
+
+    robot1_data = (robot1_center[0], robot1_center[1], robot1_angle)
+    robot2_data = (robot2_center[0], robot2_center[1], robot2_angle)
+    robot3_data = (robot3_center[0], robot3_center[1], robot3_angle)
+
+    if draw == True:
+        cv2.circle(img, robot1_center, 2, (255,255,255), -1)
+        cv2.circle(img, robot2_center, 2, (255,255,255), -1)
+        cv2.circle(img, robot3_center, 2, (255,255,255), -1)
+        cv2.putText(img, text=str(robot1_data), org=(50,50), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, color=(255,255,255), thickness=1)
+        cv2.putText(img, text=str(robot2_data), org=(50,100), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, color=(255,255,255), thickness=1)
+        cv2.putText(img, text=str(robot3_data), org=(50,150), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, color=(255,255,255), thickness=1)
+    
+    return [robot1_data, robot2_data, robot3_data]
 
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -175,51 +207,43 @@ def F_Control (x_robot, y_robot, theta, x_ball, y_ball):
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-boundaries = color_matching()
-hsv_boundaries = boundaries[0]
-rgb_boundaries = boundaries[1]
-lab_boundaries = boundaries[2]
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-cap = cv2.VideoCapture(0)
+socket = socket.socket()
+socket.connect(('10.43.63.47', 4000))
+boundaries = color_matching(cap)
+
+hilo = Thread(target=range_selector, args=('l',))
+hilo.start()
 
 lastPts = None
 
 while lastPts is None:
     print('looking for colors')
-    lastPts = find_robot_center(frame, "red", "blue")
+    ret, frame =  cap.read()
+    lastPts = find_robots(frame, color_code= "l", team_color="blue", robot1_color="red", robot2_color="purple", robot3_color="pink")
     
 
 while True:
 
     ret, frame =  cap.read()
-    
+   
     if ret:
         
-        Pts = find_robot_center(frame, "red", "blue")
+        Pts = find_robots(frame, color_code= "l", team_color="blue", robot1_color="red", robot2_color="purple", robot3_color="pink", draw=True)
         
         if not(Pts is None):
             lastPts = Pts
-        
-        #x2 = lastPts[0][0][0]
-        #y2 = lastPts[0][0][1]
-        #c2 = (x2, y2)
-        #x1 = lastPts[1][0][0]
-        #y1 = lastPts[1][0][1]
-        #c1 = (x1, y1)
-        cX = lastPts[2][0][0]
-        cY = lastPts[2][0][1]
-        center = (cX, cY)
-        
-        ang = calc_angle(x1, y1, x2, y2)
-        
-        cv2.circle(frame, center, radius = 5, color = (0,255,0), thickness = -1)
-        cv2.putText(frame, text = str(ang), org = (100,100), fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (0,255,0), thickness = 1)
-        cv2.putText(frame, text = str(center), org = (100,300), fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (0,255,0), thickness = 1)
-        #cv2.putText(frame, text = str(c1), org = (100,350), fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (255,0,0), thickness = 1)
-        #cv2.putText(frame, text = str(c2), org = (100,400), fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (0,255,255), thickness = 1)
-        
+            robot = ObjectData()
+            robot.kind = 1
+            robot.id = 0
+            robot.team = 1
+            robot.x = int(Pts[0][0])
+            robot.y = int(Pts[0][1])
+            robot.yaw = int(Pts[0][2])
+            socket.sendall(robot.SerializeToString())
+    
         k = cv2.waitKey(1)
-
         if k == 27:
             break
         
